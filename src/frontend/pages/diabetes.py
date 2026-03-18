@@ -5,14 +5,21 @@ import joblib
 import pandas as pd
 
 
+# PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# sys.path.append(str(PROJECT_ROOT))
+
+
+# from src.frontend.config.settings import Settings
+
+# settings = Settings()
+# API_URL = settings.api_url
+
+import sys
+from pathlib import Path
+
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
-sys.path.append(str(PROJECT_ROOT))
-
-
-from src.frontend.config.settings import Settings
-
-settings = Settings()
-API_URL = settings.api_url
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
 
 @st.cache_resource
 def load_model():
