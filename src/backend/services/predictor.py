@@ -1,11 +1,10 @@
 import logging
 from pathlib import Path
-
 import pandas as pd
 from joblib import load
-
+import numpy as np
 from src.backend.config.settings import Settings
-from src.utils.preprocess_util import replace_zeros_with_nan
+
 
 # Load settings
 settings = Settings()
@@ -32,6 +31,13 @@ diabetes_model = load(DIABETES_MODEL_PATH)
 cardio_risk_model = load(CARDIO_RISK_MODEL_PATH)
 logging.info("Models loaded successfully.")
 
+def replace_zeros_with_nan(X):
+    X = X.copy()
+    cols = ["Glucose", "BloodPressure", "SkinThickness", "Insulin", "BMI"]
+    for col in cols:
+        if col in X.columns:
+            X[col] = X[col].replace(0, np.nan)
+    return X
 
 # common prediction function
 def predict_disease(disease: str, input_data: dict):
@@ -44,7 +50,8 @@ def predict_disease(disease: str, input_data: dict):
         raise ValueError("Invalid disease type. Use 'diabetes' or 'cardio_risk'")
     
     X_df = pd.DataFrame([input_data])
-
+    if disease == "diabetes":
+        X_df = replace_zeros_with_nan(X_df)
     prediction = int(model.predict(X_df)[0])
 
     # probability for positive class (class = 1)
@@ -62,16 +69,16 @@ def predict_disease(disease: str, input_data: dict):
 
 
 # Example usage - comment out in production
-# diabetes_input = {
-#     "Pregnancies": 2,
-#     "Glucose": 120,
-#     "BloodPressure": 70,
-#     "SkinThickness": 25,
-#     "Insulin": 80,
-#     "BMI": 28.5,
-#     "DiabetesPedigreeFunction": 0.5,
-#     "Age": 30
-# }
+diabetes_input = {
+    "Pregnancies": 2,
+    "Glucose": 120,
+    "BloodPressure": 70,
+    "SkinThickness": 25,
+    "Insulin": 80,
+    "BMI": 28.5,
+    "DiabetesPedigreeFunction": 0.5,
+    "Age": 30
+}
 
 # cardio_input = {
 #     "age": 52,
