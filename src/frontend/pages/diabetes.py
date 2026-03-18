@@ -1,17 +1,24 @@
 import sys
 from pathlib import Path
+import streamlit as st
+import joblib
+import pandas as pd
+import requests
 
 PROJECT_ROOT = Path(__file__).resolve().parents[3]
 sys.path.append(str(PROJECT_ROOT))
 
-import requests
-import streamlit as st
 
 from src.frontend.config.settings import Settings
 
 settings = Settings()
 API_URL = settings.api_url
 
+@st.cache_resource
+def load_model():
+    return joblib.load("models/diabetes_pipeline.joblib")
+
+model = load_model()
 
 st.set_page_config(
     page_title="Multi-disease Predictor - Diabetes Prediction",
@@ -50,8 +57,8 @@ with col2:
 
 if st.button("🔍 Predict", use_container_width=True):
     payload = {
-        "disease": "diabetes",
-        "features": {
+        # "disease": "diabetes",
+        # "features": {
             "Pregnancies": pregnancies,
             "Glucose": glucose,
             "BloodPressure": blood_pressure,
@@ -60,20 +67,30 @@ if st.button("🔍 Predict", use_container_width=True):
             "BMI": bmi,
             "DiabetesPedigreeFunction": dpf,
             "Age": age,
-        },
+        # },
     }
 
     try:
-        response = requests.post(API_URL, json=payload, timeout=20)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        st.error("Unable to reach prediction service.")
+        input_df = pd.DataFrame([payload])
+        prediction = int(model.predict(input_df)[0])
+        probability = float(model.predict_proba(input_df)[0][1])
+        
+    except Exception as e:
+        st.error("Prediction failed.")
         st.caption(str(e))
         st.stop()
 
-    result = response.json()
-    prediction = int(result["prediction"])
-    probability = float(result["probability"])
+    # try:
+    #     response = requests.post(API_URL, json=payload, timeout=20)
+    #     response.raise_for_status()
+    # except requests.RequestException as e:
+    #     st.error("Unable to reach prediction service.")
+    #     st.caption(str(e))
+    #     st.stop()
+
+    # result = response.json()
+    # prediction = int(result["prediction"])
+    # probability = float(result["probability"])
 
     st.divider()
     st.metric("Diabetes Probability", f"{probability:.2f}")

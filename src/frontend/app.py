@@ -32,4 +32,4 @@ Use the left sidebar to navigate:
 """
 )
 
-st.info("Make sure the FastAPI backend is running before using predictions.")
+# st.info("Make sure the FastAPI backend is running before using predictions.")
