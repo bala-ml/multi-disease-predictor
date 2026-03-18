@@ -6,15 +6,15 @@ import joblib
 import pandas as pd
 import requests
 
-PROJECT_ROOT = Path(__file__).resolve().parents[3]
-sys.path.append(str(PROJECT_ROOT))
+# PROJECT_ROOT = Path(__file__).resolve().parents[3]
+# sys.path.append(str(PROJECT_ROOT))
 
 
 
-from src.frontend.config.settings import Settings
+# from src.frontend.config.settings import Settings
 
-settings = Settings()
-API_URL = settings.api_url
+# settings = Settings()
+# API_URL = settings.api_url
 
 @st.cache_resource
 def load_model():
